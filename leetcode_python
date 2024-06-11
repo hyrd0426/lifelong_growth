@@ -1,0 +1,19 @@
+#3404 相同分数的最大操作数目 II
+class Solution:
+    def maxOperations(self, nums: List[int]) -> int:
+        score = [nums[0] + nums[1], nums[-2] + nums[-1], nums[0] + nums[-1]]
+
+        @cache
+        def recur(start: int, end: int, score: int) -> int:
+            x = y = z = 0
+            if start >= end:
+                return 0
+            if nums[start] + nums[start + 1] == score:
+                x = recur(start + 2, end, score) + 1
+            if nums[end] + nums[end - 1] == score:
+                y = recur(start, end - 2, score) + 1
+            if nums[start] + nums[end] == score:
+                z = recur(start + 1, end - 1, score) + 1
+            return max(x, y, z)
+
+        return max(recur(0, len(nums) - 1, score[i]) for i in range(3))
