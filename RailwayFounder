@@ -1,1 +1,51 @@
+import mysql.connector
+from datetime import datetime
 
+def connect_to_db():
+    return mysql.connector.connect(
+        host="localhost",
+        user="your_username",
+        password="your_password",
+        database="RailwayLostAndFound"
+    )
+
+def add_lost_item(name, description, location):
+    db = connect_to_db()
+    cursor = db.cursor()
+    date_found = datetime.now().date()
+    status = 'Lost'
+    sql = "INSERT INTO Items (name, description, location, date_found, status) VALUES (%s, %s, %s, %s, %s)"
+    val = (name, description, location, date_found, status)
+    cursor.execute(sql, val)
+    db.commit()
+    print(f"Item '{name}' added successfully.")
+    db.close()
+
+def find_item(name):
+    db = connect_to_db()
+    cursor = db.cursor()
+    sql = "SELECT * FROM Items WHERE name LIKE %s AND status != 'Claimed'"
+    val = (f"%{name}%",)
+    cursor.execute(sql, val)
+    results = cursor.fetchall()
+    for item in results:
+        print(f"ID: {item[0]}, Name: {item[1]}, Description: {item[2]}, Location: {item[3]}, Date Found: {item[4]}, Status: {item[5]}")
+    db.close()
+
+def claim_item(item_id):
+    db = connect_to_db()
+    cursor = db.cursor()
+    sql = "UPDATE Items SET status = 'Claimed' WHERE id = %s"
+    val = (item_id,)
+    cursor.execute(sql, val)
+    db.commit()
+    if cursor.rowcount > 0:
+        print(f"Item with ID {item_id} has been marked as claimed.")
+    else:
+        print(f"No item found with ID {item_id}.")
+    db.close()
+
+def main():
+    add_lost_item("xx", "xxxxxxxxx", "xxxx")
+    find_item("xx")
+    claim_item(1)
